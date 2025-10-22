@@ -35,13 +35,13 @@ AABCharacterPlayer::AABCharacterPlayer()
 	);
 
 	// 애셋 지정.
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Cardboard.SK_CharM_Cardboard'"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMesh(TEXT("/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Cardboard.SK_CharM_Cardboard"));
 	if (CharacterMesh.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(CharacterMesh.Object);
 	}
 
-	static ConstructorHelpers::FClassFinder<UAnimInstance> CharaterAnim(TEXT("/Script/Engine.AnimBlueprint'/Game/ArenaBattle/Animation/ABP_ABCharacter.ABP_ABCharacter_C'"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> CharaterAnim(TEXT("/Game/ArenaBattle/Animation/ABP_ABCharacter.ABP_ABCharacter_C"));
 	if (CharaterAnim.Succeeded())
 	{
 		GetMesh()->SetAnimInstanceClass(CharaterAnim.Class);

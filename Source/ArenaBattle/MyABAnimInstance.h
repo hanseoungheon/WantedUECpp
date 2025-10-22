@@ -24,7 +24,6 @@ protected:
     // 애니메이션 업데이트할 때 프레임 마다 실행되는 함수.
     virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-
     // 애니메이션 블루프린트에서 사용할 변수.
 protected:
 
