@@ -5,6 +5,8 @@
 #include "ABCharacterControllData.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
+
+
 // Sets default values
 AABCharacterBase::AABCharacterBase()
 {
@@ -32,6 +34,16 @@ AABCharacterBase::AABCharacterBase()
 			QuaterDataRef.Object
 		);
 	}
+
+	//몽타주 에셋 설정.
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> ComboActionMontageRef(TEXT("/Script/Engine.AnimMontage'/Game/ArenaBattle/Animation/AM_ComboAttack.AM_ComboAttack'"));
+
+	if (ComboActionMontageRef.Succeeded() == true)
+	{
+		ComboActionMontage = ComboActionMontageRef.Object;
+	}
+
+
 }
 
 void AABCharacterBase::SetCharacterControllData(const UABCharacterControllData* InCharacterControllData)
@@ -48,5 +60,40 @@ void AABCharacterBase::SetCharacterControllData(const UABCharacterControllData* 
 
 	GetCharacterMovement()->RotationRate
 		= InCharacterControllData->RotationRate;
+
+}
+
+void AABCharacterBase::ComboActionEnd(UAnimMontage* TargetMontage, bool Interrupted)
+{
+	//재생이 끝나서 다시 무브먼브 모드복구.
+
+	GetCharacterMovement()->SetMovementMode(
+		EMovementMode::MOVE_Walking);
+}
+
+void AABCharacterBase::ProcessComboCommand()
+{
+	//이동 막기. (무브먼트 모드를 None으로 설정.)
+	GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_None);
+
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+
+	//몽타주 재생.
+	if (AnimInstance != nullptr)
+	{
+		const float AttackSpeedRate = 1.0f;
+
+		AnimInstance->Montage_Play(ComboActionMontage, 1.0f);
+	}
+
+	//몽타주 재생끝나면 다시 움직이게.
+	//몽타주 재생이 끝나면 이 클래스의 특정 함수 실행.
+	FOnMontageEnded OnMontageEnded;
+	OnMontageEnded.BindUObject(this, &AABCharacterBase::ComboActionEnd);
+	AnimInstance->Montage_SetEndDelegate(OnMontageEnded, ComboActionMontage);
+}
+
+void AABCharacterBase::ComboActionBegin()
+{
 
 }

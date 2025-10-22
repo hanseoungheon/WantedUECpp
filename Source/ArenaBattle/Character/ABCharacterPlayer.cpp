@@ -35,13 +35,13 @@ AABCharacterPlayer::AABCharacterPlayer()
 	);
 
 	// 애셋 지정.
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMesh(TEXT("/Game/Characters/Mannequins/Meshes/SKM_Quinn_Simple.SKM_Quinn_Simple"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CharacterMesh(TEXT("/Script/Engine.SkeletalMesh'/Game/InfinityBladeWarriors/Character/CompleteCharacters/SK_CharM_Cardboard.SK_CharM_Cardboard'"));
 	if (CharacterMesh.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(CharacterMesh.Object);
 	}
 
-	static ConstructorHelpers::FClassFinder<UAnimInstance> CharaterAnim(TEXT("/Game/Characters/Mannequins/Anims/Unarmed/ABP_Unarmed.ABP_Unarmed_C"));
+	static ConstructorHelpers::FClassFinder<UAnimInstance> CharaterAnim(TEXT("/Script/Engine.AnimBlueprint'/Game/ArenaBattle/Animation/ABP_ABCharacter.ABP_ABCharacter_C'"));
 	if (CharaterAnim.Succeeded())
 	{
 		GetMesh()->SetAnimInstanceClass(CharaterAnim.Class);
@@ -88,6 +88,13 @@ AABCharacterPlayer::AABCharacterPlayer()
 		JumpAction = JumpActionRef.Object;
 	}
 
+	static ConstructorHelpers::FObjectFinder<UInputAction> AttackActionRef(TEXT("/Game/ArenaBattle/Input/Actions/IA_Attack.IA_Attack"));
+	if (AttackActionRef.Succeeded())
+	{
+		AttackAction = AttackActionRef.Object;
+	}
+
+
 	static ConstructorHelpers::FObjectFinder<UInputAction> ChangeControlActionRef(TEXT("/Script/EnhancedInput.InputAction'/Game/ArenaBattle/Input/Actions/IA_ChangeControl.IA_ChangeControl'"));
 	if (ChangeControlActionRef.Succeeded())
 	{
@@ -120,6 +127,7 @@ void AABCharacterPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputC
 		EnhancedInputComponent->BindAction(QuaterMoveAction, ETriggerEvent::Triggered, this,&AABCharacterPlayer::QuaterMove); //점프
 		EnhancedInputComponent->BindAction(ChangeControlAction, ETriggerEvent::Triggered, this,&AABCharacterPlayer::ChangeCharacterControl); //점프
 		EnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Started,this,&ACharacter::Jump); //점프
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &AABCharacterPlayer::Attack);
 		EnhancedInputComponent->BindAction(JumpAction,ETriggerEvent::Completed,this,&ACharacter::StopJumping); //점프 종료
 	}
 }
@@ -256,4 +264,9 @@ void AABCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 
 void AABCharacterPlayer::QuaterLook(const FInputActionValue& Value)
 {
+}
+
+void AABCharacterPlayer::Attack()
+{
+	ProcessComboCommand();
 }
