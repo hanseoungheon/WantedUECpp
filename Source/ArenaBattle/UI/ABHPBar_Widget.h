@@ -3,14 +3,14 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "ABUserWidget.h"
 #include "ABHPBar_Widget.generated.h"
 
 /**
  * 
  */
 UCLASS()
-class ARENABATTLE_API UABHPBar_Widget : public UUserWidget
+class ARENABATTLE_API UABHPBar_Widget : public UABUserWidget
 {
 	GENERATED_BODY()
 
@@ -23,6 +23,7 @@ public:
 	//HpBar에 게이지 설정을 위해 설정할 함수.
 	void UpdateHpBar(float NewCurrentHp);
 
+
 protected:
 	//위젯이 모두 초기화가 된 후에 호출되는 함수.
 	//위젯을 참조할 때 생성됐다는 것을 보장 받을 수 있음.
@@ -33,5 +34,4 @@ protected:
 
 	UPROPERTY()
 	float MaxHp;
-	
 };

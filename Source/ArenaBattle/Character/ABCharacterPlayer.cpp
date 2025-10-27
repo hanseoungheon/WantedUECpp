@@ -147,20 +147,26 @@ void AABCharacterPlayer::SetCharacterControl(ECharacterControlType NewCharcterCo
 	APlayerController* PlayerController
 		= Cast<APlayerController>(GetController()); //플레이어 컨트롤러 가져오기.
 
-	UEnhancedInputLocalPlayerSubsystem* InputSystem =
-		ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
-			PlayerController->GetLocalPlayer()
-		);
-
-	//사용할 입력 매핑 컨텍스트 등록하기.
-	if (InputSystem != nullptr)
+	if (PlayerController != nullptr)
 	{
-		//기존에 설정된 매핑제거.
-		InputSystem->ClearAllMappings();
+		UEnhancedInputLocalPlayerSubsystem* InputSystem =
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+				PlayerController->GetLocalPlayer()
+			);
 
-		//새로운 입력매핑 컨텍스트 추가.
-		InputSystem->AddMappingContext(NewCharacterControl->InputMappingContext, 0);
+		//사용할 입력 매핑 컨텍스트 등록하기.
+		if (InputSystem != nullptr)
+		{
+			//기존에 설정된 매핑제거.
+			InputSystem->ClearAllMappings();
+
+			//새로운 입력매핑 컨텍스트 추가.
+			InputSystem->AddMappingContext(NewCharacterControl->InputMappingContext, 0);
+		}
 	}
+
+	//열거형 값 업데이트(뷰 상태)
+	CurrentCharacterControlType = NewCharcterControlType;
 }
 
 void AABCharacterPlayer::SetCharacterControllData(const UABCharacterControllData* InCharacterControllData)
@@ -254,16 +260,12 @@ void AABCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 	//이동 단위 벡터 만들기.(1.4141414가 되니깐 1로 고정)
 	MoveDirection.Normalize();
 
-	//Controller->SetControlRotation(
-	//);
-
+	Controller->SetControlRotation(
+		FRotationMatrix::MakeFromX(MoveDirection).Rotator()
+	);
 
 	//이동적용시키기.
 	AddMovementInput(MoveDirection, MovementVectorSize);
-}
-
-void AABCharacterPlayer::QuaterLook(const FInputActionValue& Value)
-{
 }
 
 void AABCharacterPlayer::Attack()

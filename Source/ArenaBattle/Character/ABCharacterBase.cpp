@@ -10,7 +10,11 @@
 #include "Engine/DamageEvents.h"
 
 #include "CharacterStat/MyCharacterStat.h"
-#include "Components/WidgetComponent.h"
+#include "UI/ABWidgetComponent.h"
+#include "UI/ABUserWidget.h"
+#include "UI/ABHPBar_Widget.h"
+#include "Interface/ABCharacterWidgetInterface.h"
+#include "Item/ABItemData.h"
 
 // Sets default values
 AABCharacterBase::AABCharacterBase()
@@ -71,7 +75,7 @@ AABCharacterBase::AABCharacterBase()
 	Stat = CreateDefaultSubobject<UMyCharacterStat>(TEXT("Stat"));
 
 	//Widget Component
-	HpBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
+	HpBar = CreateDefaultSubobject<UABWidgetComponent>(TEXT("Widget"));
 
 	HpBar->SetupAttachment(GetMesh());
 
@@ -96,6 +100,14 @@ AABCharacterBase::AABCharacterBase()
 		//콜리전 설정.
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+}
+
+void AABCharacterBase::PostInitializeComponents()
+{
+	Super::PostInitializeComponents();
+
+	//체력을 모두 소진했을떄 발행되는 델리게이트 구독.
+	Stat->OnHpZero.AddUObject(this, &AABCharacterBase::SetDead);
 }
 
 void AABCharacterBase::AttackHitCheck()
@@ -157,6 +169,28 @@ void AABCharacterBase::AttackHitCheck()
 #endif
 }
 
+void AABCharacterBase::SetupCharacterWidget(UABUserWidget* InUserWidget)
+{
+	//초기 값 설정 및 델리게이트 연결.
+	UABHPBar_Widget* HpBarWidget =  Cast<UABHPBar_Widget>(InUserWidget);
+
+	if (HpBarWidget != nullptr)
+	{
+		HpBarWidget->SetMaxHp(Stat->GetMaxHp());
+		HpBarWidget->UpdateHpBar(Stat->GetCurrentHp());
+
+		Stat->OnHpChanged.AddUObject(
+			HpBarWidget,
+			&UABHPBar_Widget::UpdateHpBar
+		);
+	}
+}
+
+void AABCharacterBase::TakeItem(UABItemData* InItemData)
+{
+	UE_LOG(LogTemp, Log, TEXT("Item 습득 타입: %d"),(uint8)InItemData->Type);
+}
+
 void AABCharacterBase::SetDead()
 {
 	//캐릭터 무브먼트 끄기.
@@ -165,6 +199,9 @@ void AABCharacterBase::SetDead()
 	PlayDeadAnimation();
 	//콜리전 끄기.
 	SetActorEnableCollision(false);
+
+	//죽으면 HPBar사라지도록 처리.
+	HpBar->SetHiddenInGame(true);
 }
 
 void AABCharacterBase::PlayDeadAnimation()
@@ -208,7 +245,8 @@ float AABCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 
 
 	//@Test: 바로 죽음 처리.
-	SetDead();
+	//SetDead();
+	Stat->ApplyDamage(DamageAmount);
 
 	return DamageAmount;
 

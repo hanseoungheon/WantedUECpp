@@ -5,6 +5,8 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interface/ABAnimationAttackInterface.h"
+#include "Interface/ABCharacterWidgetInterface.h"
+#include "Interface/ABCharacterItemInterface.h"
 #include "ABCharacterBase.generated.h"
 //캐릭터 컨트롤 타입을 지정하는 열거형.
 
@@ -16,7 +18,8 @@ enum class ECharacterControlType : uint8
 };
 
 UCLASS()
-class ARENABATTLE_API AABCharacterBase : public ACharacter, public IABAnimationAttackInterface
+class ARENABATTLE_API AABCharacterBase : public ACharacter, public IABAnimationAttackInterface,
+	public IABCharacterWidgetInterface, public IABCharacterItemInterface
 {
 	GENERATED_BODY()
 
@@ -24,8 +27,17 @@ public:
 
 	// Sets default values for this character's properties
 	AABCharacterBase();
+	
+	//컴포넌트 초기화 끝나면 호출되는 이벤트.
+	virtual void PostInitializeComponents() override;
 
 	virtual void AttackHitCheck() override;
+
+	//IABCHaracterWidget 함수 구현.
+	virtual void SetupCharacterWidget(class UABUserWidget* InUserWidget) override;
+
+	//IABCharacterItemIntercace 함수 구현.
+	virtual void TakeItem(class UABItemData* InItemData) override;
 
 	//콤보공격이 끝날떄 실행되는함수,
 	void ComboActionEnd(UAnimMontage* TargetMontage, bool Interrupted);
@@ -58,6 +70,8 @@ protected:
 
 	//콤보액션이 시작될 때 실행.
 	void ComboActionBegin();
+
+	
 
 protected:
 
@@ -100,6 +114,6 @@ protected:
 protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterControl, 
 		meta = (AllowPrivateAccess = "true"))
-	TObjectPtr<class UWidgetComponent> HpBar;
+	TObjectPtr<class UABWidgetComponent> HpBar;
 
 };
