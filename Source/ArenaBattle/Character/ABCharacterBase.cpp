@@ -9,6 +9,9 @@
 #include "Components/CapsuleComponent.h"
 #include "Engine/DamageEvents.h"
 
+#include "CharacterStat/MyCharacterStat.h"
+#include "Components/WidgetComponent.h"
+
 // Sets default values
 AABCharacterBase::AABCharacterBase()
 {
@@ -63,6 +66,36 @@ AABCharacterBase::AABCharacterBase()
 	{
 		DeadMontage = DeadMontageRef.Object;
 	}
+
+	//Stat Component
+	Stat = CreateDefaultSubobject<UMyCharacterStat>(TEXT("Stat"));
+
+	//Widget Component
+	HpBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
+
+	HpBar->SetupAttachment(GetMesh());
+
+	HpBar->SetRelativeLocation(FVector(0.0f, 0.0f, 200.0f));
+
+
+	//어떤 위젯 블프를 사용해 그릴지 지정.
+	static ConstructorHelpers::FClassFinder<UUserWidget> HpBarWidgetRef
+	(TEXT("/Game/ArenaBattle/UI/WBP_HpBar.WBP_HpBar_C"));
+
+	if (HpBarWidgetRef.Succeeded() == true)
+	{
+		//컴포넌트에서 사용할 위젯 클래스 설정.
+		HpBar->SetWidgetClass(HpBarWidgetRef.Class);
+
+		//위젯을 그릴 공간을 지정.
+		HpBar->SetWidgetSpace(EWidgetSpace::Screen);
+
+		//그릴 크기 지정.
+		HpBar->SetDrawSize(FVector2D(150.0f, 15.0f));
+
+		//콜리전 설정.
+		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
 
 void AABCharacterBase::AttackHitCheck()
@@ -105,6 +138,7 @@ void AABCharacterBase::AttackHitCheck()
 		OutHitResult.GetActor()->TakeDamage(
 			AttackDamage, DamageEvent,GetController(), this);
 	}
+
 #ifdef ENABLE_DRAW_DEBUG
 	//캡슐의 중심 위치.
 	FVector CapsuleOrigin = Start + (End - Start) * 0.5f;
@@ -148,8 +182,6 @@ void AABCharacterBase::PlayDeadAnimation()
 		AnimInstance->Montage_Play(
 			DeadMontage,
 			PlayRate);
-
-
 	}
 }
 

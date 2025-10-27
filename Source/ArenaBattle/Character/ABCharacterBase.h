@@ -76,6 +76,9 @@ protected:
 	UPROPERTY(VisibleAnywhere, Category = CharacterControl, meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UAnimMontage> DeadMontage;
 
+	//죽은 뒤에 대기 시간. (이 시간 이후에 캐릭터 삭제함)
+	float DeadEventDelayTime = 5.0f;
+
 	//현재 콤보 단계 추적 변수.
 	UPROPERTY(VisibleAnywhere, Category = CharacterControl, meta = (AllowPrivateAccess = "true"))
 	uint32 CurrentCombo = 0;
@@ -86,4 +89,17 @@ protected:
 	// 콤보 점프를 판정할 때 사용할 Bool 변수
 	UPROPERTY(VisibleAnywhere, Category = CharacterControl, meta = (AllowPrivateAccess = "true"))
 	bool bHasNextComboCommand = false;
+	
+	//Stat 섹션.
+protected:
+	UPROPERTY(VisibleAnywhere,BlueprintReadOnly, Category = CharacterControl, 
+		meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UMyCharacterStat> Stat;
+
+	//Widget 섹션.
+protected:
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterControl, 
+		meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<class UWidgetComponent> HpBar;
+
 };

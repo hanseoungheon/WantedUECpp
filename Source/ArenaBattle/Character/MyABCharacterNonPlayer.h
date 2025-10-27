@@ -17,6 +17,8 @@ class ARENABATTLE_API AMyABCharacterNonPlayer : public AABCharacterBase
 public:
 	AMyABCharacterNonPlayer();
 
+protected:
+	virtual void SetDead() override;
 private:
 
 	
