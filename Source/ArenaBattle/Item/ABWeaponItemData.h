@@ -16,5 +16,6 @@ class ARENABATTLE_API UABWeaponItemData : public UABItemData
 	
 public:
 	UPROPERTY(EditAnywhere, Category = Weapon)
-	TObjectPtr<class USkeletalMesh> WeaponMesh;
+	//약참조->경로만 들고있음.
+	TSoftObjectPtr<class USkeletalMesh> WeaponMesh;
 };

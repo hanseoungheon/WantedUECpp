@@ -15,6 +15,7 @@
 #include "UI/ABHPBar_Widget.h"
 #include "Interface/ABCharacterWidgetInterface.h"
 #include "Item/ABItemData.h"
+#include "Item/ABWeaponItemData.h"
 
 // Sets default values
 AABCharacterBase::AABCharacterBase()
@@ -100,6 +101,19 @@ AABCharacterBase::AABCharacterBase()
 		//콜리전 설정.
 		HpBar->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
+
+	//Item Sections.
+	TakeItemActions.Add(FTakeItemDelegateWrappers
+	(FOnTakeItemDelegate::CreateUObject(this, &AABCharacterBase::EquipWeapon)));
+
+	TakeItemActions.Add(FTakeItemDelegateWrappers
+	(FOnTakeItemDelegate::CreateUObject(this, &AABCharacterBase::DrinkPotion)));
+
+	TakeItemActions.Add(FTakeItemDelegateWrappers
+	(FOnTakeItemDelegate::CreateUObject(this, &AABCharacterBase::ReadScroll)));
+
+	Weapon = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("Weapon"));
+	Weapon->SetupAttachment(GetMesh(), TEXT("hand_rSocket"));
 }
 
 void AABCharacterBase::PostInitializeComponents()
@@ -188,8 +202,51 @@ void AABCharacterBase::SetupCharacterWidget(UABUserWidget* InUserWidget)
 
 void AABCharacterBase::TakeItem(UABItemData* InItemData)
 {
-	UE_LOG(LogTemp, Log, TEXT("Item 습득 타입: %d"),(uint8)InItemData->Type);
+	//UE_LOG(LogTemp, Log, TEXT("Item 습득 타입: %d"),(uint8)InItemData->Type);
+
+	if (InItemData != nullptr)
+	{
+		//타입별로 인덱스 구하기.
+		uint8 Index = (uint8)InItemData->Type;
+
+		//호출할 델리게이트 가져오기.
+		FOnTakeItemDelegate Delegate =  TakeItemActions[Index].ItemDelegate;
+
+		//델리게이트 호출.
+		Delegate.ExecuteIfBound(InItemData);
+	}
+
 }
+
+void AABCharacterBase::DrinkPotion(UABItemData* InItemData)
+{
+	UE_LOG(LogTemp, Display, TEXT("DrinkPotion"));
+}
+
+void AABCharacterBase::EquipWeapon(UABItemData* InItemData)
+{
+	UABWeaponItemData* WeaponItemData
+		= Cast<UABWeaponItemData>(InItemData);
+
+	if (WeaponItemData != nullptr)
+	{
+		//무기 메시가 이미 로드 됐는지 확인.
+		//로드가 안됐으면 로드 처리.
+		if (WeaponItemData->WeaponMesh.IsPending() == true)
+		{
+			WeaponItemData->WeaponMesh.LoadSynchronous();
+		}
+
+		//로드가 완료되면 메시 설정.
+		Weapon->SetSkeletalMesh(WeaponItemData->WeaponMesh.Get());
+	}
+}
+
+void AABCharacterBase::ReadScroll(UABItemData* InItemData)
+{
+	UE_LOG(LogTemp, Display, TEXT("Read Scroll"));
+}
+
 
 void AABCharacterBase::SetDead()
 {
@@ -252,6 +309,8 @@ float AABCharacterBase::TakeDamage(float DamageAmount, FDamageEvent const& Damag
 
 
 }
+
+
 
 void AABCharacterBase::ComboActionEnd(UAnimMontage* TargetMontage, bool Interrupted)
 {
@@ -379,3 +438,4 @@ void AABCharacterBase::ComboActionBegin()
 	//타이머 설정 및 콤보 단계처리.
 	SetComboCheckTimer();
 }
+

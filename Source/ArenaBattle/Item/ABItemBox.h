@@ -43,4 +43,5 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Item)
 	TObjectPtr<class UABItemData> Item;
 
+
 };

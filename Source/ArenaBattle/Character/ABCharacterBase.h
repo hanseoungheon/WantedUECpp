@@ -17,6 +17,29 @@ enum class ECharacterControlType : uint8
 	Quater
 };
 
+DECLARE_DELEGATE_OneParam(FOnTakeItemDelegate, class UABItemData* /*InItemData*/);
+
+//델리게이트 다수를 배열로 관리하기 위한 구조체.
+
+USTRUCT()
+struct FTakeItemDelegateWrappers
+{
+	GENERATED_BODY()
+
+	FTakeItemDelegateWrappers()
+	{
+
+	}
+
+	FTakeItemDelegateWrappers(
+		const FOnTakeItemDelegate& InItemDelegate)
+		: ItemDelegate(InItemDelegate)
+	{
+
+	}
+	FOnTakeItemDelegate ItemDelegate;
+};
+
 UCLASS()
 class ARENABATTLE_API AABCharacterBase : public ACharacter, public IABAnimationAttackInterface,
 	public IABCharacterWidgetInterface, public IABCharacterItemInterface
@@ -115,5 +138,19 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = CharacterControl, 
 		meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<class UABWidgetComponent> HpBar;
+
+
+	//ItemSection
+protected:
+	//무기 획득시 사용할 스켈레탈 메시 컴포넌트.
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Weapon)
+	TObjectPtr<class USkeletalMeshComponent> Weapon;
+
+	UPROPERTY()
+	TArray<FTakeItemDelegateWrappers> TakeItemActions;
+
+	virtual void DrinkPotion(class UABItemData* InItemData);
+	virtual void EquipWeapon(class UABItemData* InItemData);
+	virtual void ReadScroll(class UABItemData* InItemData);
 
 };
