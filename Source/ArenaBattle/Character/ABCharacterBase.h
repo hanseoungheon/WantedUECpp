@@ -28,15 +28,14 @@ struct FTakeItemDelegateWrappers
 
 	FTakeItemDelegateWrappers()
 	{
-
 	}
 
 	FTakeItemDelegateWrappers(
 		const FOnTakeItemDelegate& InItemDelegate)
 		: ItemDelegate(InItemDelegate)
 	{
-
 	}
+
 	FOnTakeItemDelegate ItemDelegate;
 };
 

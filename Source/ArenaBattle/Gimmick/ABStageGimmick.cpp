@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Gimmick/ABStageGimmick.h"
@@ -16,28 +16,28 @@ AABStageGimmick::AABStageGimmick()
 	Stage = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Stage"));
 	RootComponent = Stage;
 
-	//@Todo: ½ºÅ×ÀÌÁö ¸Ş½Ã ¿¡¼Â ¼³Á¤.
+	//@Todo: ìŠ¤í…Œì´ì§€ ë©”ì‹œ ì—ì…‹ ì„¤ì •.
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> StageMeshRef(TEXT("/Game/ArenaBattle/Environment/Stages/SM_SQUARE.SM_SQUARE"));
 	if (StageMeshRef.Succeeded() == true)
 	{
 		Stage->SetStaticMesh(StageMeshRef.Object);
 	}
 
-	//¹Ú½º Äİ¸®Àü ÄÄÆ÷³ÍÆ® ¼³Á¤.
+	//ë°•ìŠ¤ ì½œë¦¬ì „ ì»´í¬ë„ŒíŠ¸ ì„¤ì •.
 	StageTrigger = CreateDefaultSubobject<UBoxComponent>(TEXT("StageTrigger"));
 	StageTrigger->SetupAttachment(Stage);
-	//¹Ú½º Äİ¸®Àü Å©±â ¼³Á¤.
+	//ë°•ìŠ¤ ì½œë¦¬ì „ í¬ê¸° ì„¤ì •.
 	StageTrigger->SetBoxExtent(FVector(775.0f, 775.0f, 300.0f));
-	//»ó´ë À§Ä¡ ¼³Á¤.
+	//ìƒëŒ€ ìœ„ì¹˜ ì„¤ì •.
 	StageTrigger->SetRelativeLocation(FVector(0.0f, 0.0f, 300.0f));
-	//Äİ¸®Àü ¼³Á¤.
+	//ì½œë¦¬ì „ ì„¤ì •.
 	StageTrigger->SetCollisionProfileName(CPROPILE_ABTRIGGER);
-	//¿À¹ö·¦ ÀÌº¥Æ®¿¡ ÇÔ¼ö µî·Ï.
+	//ì˜¤ë²„ë© ì´ë²¤íŠ¸ì— í•¨ìˆ˜ ë“±ë¡.
 	StageTrigger->OnComponentBeginOverlap.AddDynamic(this, 
 		&AABStageGimmick::OnStageTriggerBeginOverlap);
 
 	//Gate Section.
-	//¹® À§Ä¡¸¦ ³ªÅ¸³»´Â ¼ÒÄÏ ÀÌ¸§ °ª.
+	//ë¬¸ ìœ„ì¹˜ë¥¼ ë‚˜íƒ€ë‚´ëŠ” ì†Œì¼“ ì´ë¦„ ê°’.
 	static FName GateSockets[] =
 	{
 		TEXT("+XGate"),
@@ -46,7 +46,7 @@ AABStageGimmick::AABStageGimmick()
 		TEXT("-YGate")
 	};
 
-	//@Todo: ¸Ş½Ã ·Îµå ¹× ¼³Á¤.
+	//@Todo: ë©”ì‹œ ë¡œë“œ ë° ì„¤ì •.
 	static ConstructorHelpers::FObjectFinder<UStaticMesh> 
 		GateMeshRef(TEXT("/Game/ArenaBattle/Environment/Props/SM_GATE.SM_GATE"));
 
@@ -55,54 +55,146 @@ AABStageGimmick::AABStageGimmick()
 		UStaticMeshComponent* Gate
 			= CreateDefaultSubobject<UStaticMeshComponent>(GateSocket);
 
+		
+
 		if (GateMeshRef.Succeeded() == true)
 		{
 			Gate->SetStaticMesh(GateMeshRef.Object);
 		}
 
-		//°èÃş ¼³Á¤.
+		//ê³„ì¸µ ì„¤ì •.
 		Gate->SetupAttachment(Stage, GateSocket);
 
-		//»ó´ë À§Ä¡ ¼³Á¤.
+		//ìƒëŒ€ ìœ„ì¹˜ ì„¤ì •.
 		Gate->SetRelativeLocation(FVector(0.0f, -80.0f, 0.0f));
 
-		//»ó´ë È¸Àü ¼³Á¤.
+		//ìƒëŒ€ íšŒì „ ì„¤ì •.
 		Gate->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	
+		Gates.Add(GateSocket, Gate);
 
-		//GateÀÇ Äİ¸®Àü.
+		//ë°°ì—´ì— ì¶”ê°€.
+		//Gateì˜ ì½œë¦¬ì „.
 		FName TriggerName = *FString::Printf(TEXT("%sTrigger"), *GateSocket.ToString());
 		//FName TriggetName = *GateSocket.ToString().Append(TEXT("Trigger"));
 
 		UBoxComponent* GateTrigger
 			= CreateDefaultSubobject<UBoxComponent>(TriggerName);
 
-		//°èÃş ¼³Á¤.
+		//ê³„ì¸µ ì„¤ì •.
 		GateTrigger->SetupAttachment(Stage, GateSocket);
-		//Å©±â ÁöÁ¤.
+		//í¬ê¸° ì§€ì •.
 		GateTrigger->SetBoxExtent(FVector(100.0f, 100.0f, 300.0f));
-		//»ó´ë À§Ä¡ ¼³Á¤.
+		//ìƒëŒ€ ìœ„ì¹˜ ì„¤ì •.
 		GateTrigger->SetRelativeLocation(FVector(0.0f, 0.0f, 300.0f));
-		//Äİ¸®Àü ¼³Á¤.
+		//ì½œë¦¬ì „ ì„¤ì •.
 		GateTrigger->SetCollisionProfileName(CPROPILE_ABTRIGGER);
-		//¿À¹ö·¦ ÀÌº¥Æ®¿¡ ÇÔ¼ö µî·Ï.
+		//ì˜¤ë²„ë© ì´ë²¤íŠ¸ì— í•¨ìˆ˜ ë“±ë¡.
 		GateTrigger->OnComponentBeginOverlap.AddDynamic(this, &AABStageGimmick::OnGateTriggerBeginOverlap);
 
-		//¹è¿­¿¡ Ãß°¡.
+		//íƒœê·¸ ì¶”ê°€.
+		GateTrigger->ComponentTags.Add(GateSocket);
+
+		//ë°°ì—´ì— ì¶”ê°€.
 		GateTriggers.Add(GateTrigger);
-		
-		//¹è¿­¿¡ Ãß°¡.
-		Gates.Add(GateSocket,Gate);
 	}
+
+	CurrentState = EStageState::READY;
+
+	StateChangeActions.Add(EStageState::READY, FStageChangedDelegateWrapper(FOnStageChangedDelegate::CreateUObject(this, &AABStageGimmick::SetReady)));
+	StateChangeActions.Add(EStageState::FIGHT, FStageChangedDelegateWrapper(FOnStageChangedDelegate::CreateUObject(this, &AABStageGimmick::SetFight)));
+	StateChangeActions.Add(EStageState::REWARD, FStageChangedDelegateWrapper(FOnStageChangedDelegate::CreateUObject(this, &AABStageGimmick::SetChooseReward)));
+	StateChangeActions.Add(EStageState::NEXT, FStageChangedDelegateWrapper(FOnStageChangedDelegate::CreateUObject(this, &AABStageGimmick::SetChooseNext)));
 }
 
-void AABStageGimmick::OnStageTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
+void AABStageGimmick::OnConstruction(const FTransform& Transform)
+{
+	Super::OnConstruction(Transform);
+
+	SetState(CurrentState);
+}
+
+
+
+void AABStageGimmick::OnStageTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-
 }
 
 void AABStageGimmick::OnGateTriggerBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, 
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 
+
+}
+
+void AABStageGimmick::OpenAllGates()
+{
+	for (auto Gate : Gates)
+	{
+		(Gate.Value)->SetRelativeRotation(FRotator(0.0f, -90.0f, 0.0f));
+	}
+}
+
+void AABStageGimmick::CloseAllGates()
+{
+	for (auto Gate : Gates)
+	{
+		(Gate.Value)->SetRelativeRotation(FRotator::ZeroRotator);
+	}
+}
+
+//Setter
+void AABStageGimmick::SetState(EStageState InNewState)
+{
+	CurrentState = InNewState;
+
+	if (StateChangeActions.Contains(InNewState))
+	{
+		StateChangeActions[CurrentState].StageDelegate.ExecuteIfBound();
+	}
+}
+void AABStageGimmick::SetReady()
+{
+	StageTrigger->SetCollisionProfileName(CPROPILE_ABTRIGGER);
+
+	for (auto GateTrigger : GateTriggers)
+	{
+		GateTrigger->SetCollisionProfileName(CPROPILE_NOCOLLISION);
+	}
+
+	CloseAllGates();
+}
+void AABStageGimmick::SetFight()
+{
+	StageTrigger->SetCollisionProfileName(CPROPILE_NOCOLLISION);
+
+	for (auto GateTrigger : GateTriggers)
+	{
+		GateTrigger->SetCollisionProfileName(CPROPILE_NOCOLLISION);
+	}
+
+	CloseAllGates();
+}
+void AABStageGimmick::SetChooseReward()
+{
+	StageTrigger->SetCollisionProfileName(CPROPILE_NOCOLLISION);
+
+	for (auto GateTrigger : GateTriggers)
+	{
+		GateTrigger->SetCollisionProfileName(CPROPILE_NOCOLLISION);
+	}
+
+	CloseAllGates();	
+}
+void AABStageGimmick::SetChooseNext()
+{
+	StageTrigger->SetCollisionProfileName(CPROPILE_NOCOLLISION);
+
+	for (auto GateTrigger : GateTriggers)
+	{
+		GateTrigger->SetCollisionProfileName(CPROPILE_ABTRIGGER);
+	}
+
+	OpenAllGates();
 }

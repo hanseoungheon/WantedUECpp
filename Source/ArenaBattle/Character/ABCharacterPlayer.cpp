@@ -108,6 +108,13 @@ void AABCharacterPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+	if (PlayerController != nullptr)
+	{
+		EnableInput(PlayerController);
+	}
+
 	SetCharacterControl(CurrentCharacterControlType);
 }
 
@@ -271,4 +278,16 @@ void AABCharacterPlayer::QuaterMove(const FInputActionValue& Value)
 void AABCharacterPlayer::Attack()
 {
 	ProcessComboCommand();
+}
+
+void AABCharacterPlayer::SetDead()
+{
+	Super::SetDead();
+
+	APlayerController* PlayerController = Cast<APlayerController>(GetController());
+
+	if (PlayerController != nullptr)
+	{
+		DisableInput(PlayerController);
+	}
 }

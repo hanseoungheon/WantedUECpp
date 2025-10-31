@@ -47,6 +47,8 @@ protected:
 
 	void Attack();
 
+	virtual void SetDead() override;
+
 protected:
 
 	// 컴포넌트 구성.
